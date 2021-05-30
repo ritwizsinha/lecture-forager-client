@@ -1,0 +1,18 @@
+.video_box{
+    display: inline-flex;
+    padding: 10px 10px 10px 100px;
+}
+
+.image_body{
+    width: 350px;
+    height: 180px;
+    padding-right: 50px;
+}
+
+.video_content{
+}
+
+.video_heading{
+    font-family: "poppins";
+    font-size: 24px;
+}
