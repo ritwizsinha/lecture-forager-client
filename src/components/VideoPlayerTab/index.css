@@ -61,3 +61,6 @@
 .bookmark_bar_item:hover {
   cursor: pointer;
 }
+.add_bookmark_bar{
+  width: 100%;
+}
