@@ -26,13 +26,17 @@ export default class VideoPlayerTab extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      source: `https://lecture-forager.s3.ap-south-1.amazonaws.com/videos/${props.id + props.filename}`,
-      keywords: this.props.data.filter(word => {
+      source: `https://lecture-forager.s3.ap-south-1.amazonaws.com/videos/${
+        props.id + props.filename
+      }`,
+      keywords: this.props.data.filter((word) => {
         return this.props.keyword.includes(word.word);
       }),
       bookmarks: [],
+      value: "",
     };
     this.seek = this.seek.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   changePlayingStatus = (toChange) => {
@@ -79,11 +83,11 @@ export default class VideoPlayerTab extends Component {
       ) !== null
     ) {
       this.setState({
-        bookmarks: [
-          ...localStorage
-            .getItem(this.props.data.jobName + "_video_lecture_forager")
-            .split(","),
-        ],
+        bookmarks: JSON.parse(
+          localStorage.getItem(
+            this.props.data.jobName + "_video_lecture_forager"
+          )
+        ),
       });
     }
   }
@@ -101,14 +105,40 @@ export default class VideoPlayerTab extends Component {
     };
   }
 
-  addBookmarks(newBookmarkTime) {
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+  }
+
+  addBookmarks(newBookmarkTime, text) {
     this.setState((prevState) => {
+      if (
+        prevState.bookmarks.find(
+          (bookmark) => bookmark.time === newBookmarkTime
+        ) !== undefined
+      ) {
+        return;
+      }
+      console.log('something went wrong')
       localStorage.setItem(
         this.props.data.jobName + "_video_lecture_forager",
-        [...prevState.bookmarks, newBookmarkTime.toString()].toString()
+        JSON.stringify([
+          ...[
+            ...prevState.bookmarks,
+            { time: newBookmarkTime, text: text },
+          ].sort(function (a, b) {
+            return a.time - b.time;
+          }),
+        ])
       );
       return {
-        bookmarks: [...prevState.bookmarks, newBookmarkTime.toString()],
+        bookmarks: [
+          ...[
+            ...prevState.bookmarks,
+            { time: newBookmarkTime, text: text },
+          ].sort(function (a, b) {
+            return a.time - b.time;
+          }),
+        ],
       };
     });
   }
@@ -158,24 +188,34 @@ export default class VideoPlayerTab extends Component {
             return (
               <div
                 className={i.toString() + "_bookmark_bar bookmark_bar_item"}
-                onClick={this.seek(parseInt(bookmark))}
+                onClick={this.seek(parseInt(bookmark.time))}
                 key={i}
               >
-                {Math.round((100 * bookmark) / 60) / 100}
+                {Math.round((100 * bookmark.time) / 60) / 100}
               </div>
             );
           })}
+        </div>
+        <div className="add_bookmark_bar">
           <div
             className={
               this.state.bookmarks.length.toString() +
               "_bookmark_bar bookmark_bar_item"
             }
             onClick={() => {
-              this.addBookmarks(parseInt(this.state.player.currentTime));
+              this.addBookmarks(
+                parseInt(this.state.player.currentTime),
+                this.state.value
+              );
             }}
           >
             Add Bookmark
           </div>
+          {/* <textarea
+            value={this.state.value}
+            onChange={this.handleChange}
+            style={{ width: "100%" }}
+          /> */}
         </div>
         <div></div>
       </div>

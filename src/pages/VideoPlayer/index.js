@@ -41,10 +41,30 @@ export default function VideoPlayerData({ location: { state } }) {
       </div>
     );
   } else {
-    return <VideoPlayer transcriptData={transcriptData} text={text} title={state.title} description={state.description}  keywords={state.keywords} searchTerm={state.searchTerm} id = {state.id} filename={state.filename}/>
+    return (
+      <VideoPlayer
+        transcriptData={transcriptData}
+        text={text}
+        title={state.title}
+        description={state.description}
+        keywords={state.keywords}
+        searchTerm={state.searchTerm}
+        id={state.id}
+        filename={state.filename}
+      />
+    );
   }
 }
-function VideoPlayer({ transcriptData, text, title, description, keywords, searchTerm, id, filename }) {
+function VideoPlayer({
+  transcriptData,
+  text,
+  title,
+  description,
+  keywords,
+  searchTerm,
+  id,
+  filename,
+}) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [timer, setTimer] = useState(0);
   console.log(searchTerm);
@@ -56,6 +76,19 @@ function VideoPlayer({ transcriptData, text, title, description, keywords, searc
         document.getElementsByClassName(
           i.toString() + "_class_id"
         )[0].style.backgroundColor = "white";
+      } else if (!item.hasOwnProperty("startTime")) {
+        if (
+          document.getElementsByClassName((i - 1).toString() + "_class_id")[0]
+            .style.backgroundColor === "burlywood"
+        ) {
+          document.getElementsByClassName(
+            i.toString() + "_class_id"
+          )[0].style.backgroundColor = "burlywood";
+        } else {
+          document.getElementsByClassName(
+            i.toString() + "_class_id"
+          )[0].style.backgroundColor = "white";
+        }
       } else {
         document.getElementsByClassName(
           i.toString() + "_class_id"
@@ -73,7 +106,7 @@ function VideoPlayer({ transcriptData, text, title, description, keywords, searc
       const currentRef = refToChild.current.state.player.currentTime;
       highlightText(currentRef);
     }
-  }, 5000);
+  }, 2000);
 
   function changeStatus(currentTime, toChange) {
     if (toChange) {
@@ -87,21 +120,21 @@ function VideoPlayer({ transcriptData, text, title, description, keywords, searc
   return (
     <div className="video_player_box">
       <div className="video_player_tab">
-         <VideoPlayerTab
+        <VideoPlayerTab
           changeStatus={changeStatus}
           ref={refToChild}
           data={transcriptData}
           videoInformation={{
             title,
             body: description,
-            tags: keywords.split(',')
+            tags: keywords.split(","),
           }}
           title={title}
           description={description}
-          keyword={searchTerm.split(' ')}
+          keyword={searchTerm.split(" ")}
           id={id}
           filename={filename}
-        /> 
+        />
       </div>
       <div className="text_tab">
         {!transcriptData.length && (
