@@ -90,6 +90,18 @@ export default class VideoPlayerTab extends Component {
         ),
       });
     }
+    setInterval(() => {
+      this.state.bookmarks.forEach((bookmark, i)=>{
+        if(bookmark.time <= parseInt(this.state.player.currentTime) && (i < this.state.bookmarks.length - 1 && this.state.bookmarks[i].time > parseInt(this.state.player.currentTime))){
+          this.setState(prevState =>{
+            return {
+              value:bookmark.text
+            }
+          })
+          break;
+        }
+      })
+    }, 1000);
   }
 
   handleStateChange(state) {
@@ -111,14 +123,39 @@ export default class VideoPlayerTab extends Component {
 
   addBookmarks(newBookmarkTime, text) {
     this.setState((prevState) => {
-      if (
-        prevState.bookmarks.find(
-          (bookmark) => bookmark.time === newBookmarkTime
-        ) !== undefined
-      ) {
-        return;
+      let bookmarkToFind = prevState.bookmarks.find(
+        (bookmark) => bookmark.time === newBookmarkTime
+      );
+      if (bookmarkToFind !== undefined) {
+        if (bookmark.text === text) {
+          return;
+        } else {
+          let bookmarkArray = prevState.bookmarks.filter(
+            (bookmark) => bookmark.time !== newBookmarkTime
+          );
+          localStorage.setItem(
+            this.props.data.jobName + "_video_lecture_forager",
+            JSON.stringify([
+              ...[
+                ...bookmarkArray.bookmarks,
+                { time: newBookmarkTime, text: text },
+              ].sort(function (a, b) {
+                return a.time - b.time;
+              }),
+            ])
+          );
+          return {
+            bookmarks: [
+              ...[
+                ...bookmarkArray.bookmarks,
+                { time: newBookmarkTime, text: text },
+              ].sort(function (a, b) {
+                return a.time - b.time;
+              }),
+            ],
+          };
+        }
       }
-      console.log('something went wrong')
       localStorage.setItem(
         this.props.data.jobName + "_video_lecture_forager",
         JSON.stringify([
@@ -211,11 +248,11 @@ export default class VideoPlayerTab extends Component {
           >
             Add Bookmark
           </div>
-          {/* <textarea
+          <textarea
             value={this.state.value}
             onChange={this.handleChange}
             style={{ width: "100%" }}
-          /> */}
+          />
         </div>
         <div></div>
       </div>
