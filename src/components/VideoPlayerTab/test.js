@@ -91,16 +91,21 @@ export default class VideoPlayerTab extends Component {
       });
     }
     setInterval(() => {
-      this.state.bookmarks.forEach((bookmark, i)=>{
-        if(bookmark.time <= parseInt(this.state.player.currentTime) && (i < this.state.bookmarks.length - 1 && this.state.bookmarks[i].time > parseInt(this.state.player.currentTime))){
-          this.setState(prevState =>{
+      let currentTime = this.state.player.currentTime;
+      this.state.bookmarks.forEach((bookmark, i) => {
+        if (
+          bookmark.time <= parseInt(currentTime) &&
+          i < this.state.bookmarks.length - 1 &&
+          this.state.bookmarks[i + 1].time > parseInt(currentTime)
+        ) {
+          this.setState((prevState) => {
             return {
-              value:bookmark.text
-            }
-          })
-          break;
+              value: bookmark.text,
+            };
+          });
+          return;
         }
-      })
+      });
     }, 1000);
   }
 
@@ -127,7 +132,7 @@ export default class VideoPlayerTab extends Component {
         (bookmark) => bookmark.time === newBookmarkTime
       );
       if (bookmarkToFind !== undefined) {
-        if (bookmark.text === text) {
+        if (bookmarkToFind.text === text) {
           return;
         } else {
           let bookmarkArray = prevState.bookmarks.filter(
@@ -181,7 +186,6 @@ export default class VideoPlayerTab extends Component {
   }
 
   render() {
-    console.log(this.state, this.props);
     return (
       <div className="lf_video_play">
         <div className="main_video">
