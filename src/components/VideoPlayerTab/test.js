@@ -7,7 +7,7 @@ import {
   PlaybackRateMenuButton,
   BigPlayButton,
 } from "video-react";
-import VideoItem from "../VideoItem";
+import Tags from "../../components/Tags";
 
 import "video-react/dist/video-react.css";
 import "./index.css";
@@ -34,6 +34,7 @@ export default class VideoPlayerTab extends Component {
       }),
       bookmarks: [],
       value: "",
+      bookmarkValue: "",
     };
     this.seek = this.seek.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -79,13 +80,13 @@ export default class VideoPlayerTab extends Component {
 
     if (
       localStorage.getItem(
-        this.props.data.jobName + "_video_lecture_forager"
+        this.props.filename + "_video_lecture_forager"
       ) !== null
     ) {
       this.setState({
         bookmarks: JSON.parse(
           localStorage.getItem(
-            this.props.data.jobName + "_video_lecture_forager"
+            this.props.filename + "_video_lecture_forager"
           )
         ),
       });
@@ -95,12 +96,13 @@ export default class VideoPlayerTab extends Component {
       this.state.bookmarks.forEach((bookmark, i) => {
         if (
           bookmark.time <= parseInt(currentTime) &&
-          i < this.state.bookmarks.length - 1 &&
-          this.state.bookmarks[i + 1].time > parseInt(currentTime)
+          ((i < this.state.bookmarks.length - 1 &&
+            this.state.bookmarks[i + 1].time > parseInt(currentTime)) ||
+            i == this.state.bookmarks.length - 1)
         ) {
           this.setState((prevState) => {
             return {
-              value: bookmark.text,
+              bookmarkValue: bookmark.text,
             };
           });
           return;
@@ -139,7 +141,7 @@ export default class VideoPlayerTab extends Component {
             (bookmark) => bookmark.time !== newBookmarkTime
           );
           localStorage.setItem(
-            this.props.data.jobName + "_video_lecture_forager",
+            this.props.filename + "_video_lecture_forager",
             JSON.stringify([
               ...[
                 ...bookmarkArray.bookmarks,
@@ -162,7 +164,7 @@ export default class VideoPlayerTab extends Component {
         }
       }
       localStorage.setItem(
-        this.props.data.jobName + "_video_lecture_forager",
+        this.props.filename + "_video_lecture_forager",
         JSON.stringify([
           ...[
             ...prevState.bookmarks,
@@ -184,6 +186,14 @@ export default class VideoPlayerTab extends Component {
       };
     });
   }
+
+  changeKeyword = (newWord) => {
+    this.setState({
+      keywords: this.props.data.filter((word) => {
+        return newWord === word.word;
+      }),
+    });
+  };
 
   render() {
     return (
@@ -210,6 +220,13 @@ export default class VideoPlayerTab extends Component {
         </div>
         <div className="lf_title">{this.props.title}</div>
         <div className="lf_description">{this.props.description}</div>
+        <div className="video_tags">
+          <Tags
+            tags={this.props.videoInformation.tags ?? []}
+            keywordChange={this.changeKeyword}
+          />{" "}
+        </div>
+
         <div className="control_bar">
           {this.state.keywords.map((keyword, i) => {
             return (
@@ -257,6 +274,7 @@ export default class VideoPlayerTab extends Component {
             onChange={this.handleChange}
             style={{ width: "100%" }}
           />
+          <p>{this.state.bookmarkValue}</p>
         </div>
         <div></div>
       </div>
