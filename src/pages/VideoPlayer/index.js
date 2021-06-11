@@ -67,7 +67,6 @@ function VideoPlayer({
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [timer, setTimer] = useState(0);
-  console.log(searchTerm);
   let refToChild = createRef();
 
   function highlightText(currentTime) {
